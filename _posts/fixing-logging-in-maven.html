@@ -1,0 +1,18 @@
+title: Fixing logging in Maven
+date: 2005/05/04 10:36:34 -0700
+tags: [{"name":"Technology","id":65596280}]
+author: Pål Brattberg
+alias: /fixing-logging-in-maven
+
+Recognize this problem? You are using <a href="http://logging.apache.org/log4j/docs/">Log4J</a> and/or <a href="http://jakarta.apache.org/commons/logging/">Commons Logging</a> in your application and all is working nicely, except for the fact that at buildtime, with <a href="http://maven.apache.org/">Maven</a> and <a href="http://cruisecontrol.sourceforge.net/">CruiseControl</a>, you always get the error <code>log4j:WARN No appenders could be found for logger x.y.Z</code>. What to do?
+
+You can start Maven with a system property, letting the log package know where you keep your configuration file, like so:
+<code>maven -Dlog4j.configuration=src/xml/log4j.xml test</code> (or perhaps <code>log4j.properties</code>, if that's your cup of tea).
+
+This works, but it's not so sweet to have to do this every time you run Maven. Well, you can supply Maven with a fixed system property by hacking <code>maven.xml</code>. Just add the following and you're good to go!
+
+<code>
+     ${systemScope.put('log4j.configuration', 'src/xml/log4j.xml')}
+</code>
+
+Now things should work every time you run Maven, and you have one less problem. :)

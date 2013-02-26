@@ -1,0 +1,34 @@
+title: Getting a handle on custom WebTop components using Spring
+date: 2008/03/02 10:04:46 -0800
+tags: [{"name":"documentum","id":65596031},{"name":"F/OSS","id":65596032},{"name":"java","id":65596033},{"name":"spring","id":65596034},{"name":"Technology","id":65596035},{"name":"web","id":65596036},{"name":"web development","id":65596037},{"name":"webtop","id":65596038},{"name":"zircon","id":65596039}]
+author: Pål Brattberg
+alias: /getting-a-handle-on-custom-webtop-components
+
+When customizing an EMC Documentum <a href="http://www.emc.com/products/detail/software/webtop.htm">WebTop</a> application and using the <a href="http://www.springframework.org/">Spring Framework</a> to tie everything together, you find yourself wishing you could use <a href="http://www.martinfowler.com/articles/injection.html" title="Inversion of Control (IoC)">Dependency Injection</a> at all places in the existing WebTop source.
+
+I don't yet know of a workable way to achive that sort of plumbing with a WebTop application (especially for all types of existing components and tags) to just expose any new dependencies and let Spring handle it all.
+
+Another way to achive interoperability with Spring and still use most of what's good there is to allow our legacy components to have access to a Spring <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" title="ApplicationContext"><code>ApplicationContext</code></a>, but setting one using Spring is not feasible because of the same reasons as above. Thus we introduce the <code>StaticSpringApplicationContext</code>.
+
+The <code>StaticSpringApplicationContext</code> works simply by containing a static reference to the Spring ApplicationContext and exposing a static helper method to get beans configured by Spring.
+
+Configure the helper class by defining it in your <code>web.xml</code> like so:
+
+<code>&lt;listener&gt;
+&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+&lt;/listener&gt;</code>
+
+And at least the following in your <code>WEB-INF/applicationContext.xml</code> file:
+
+<code>&lt;bean id="StaticSpringApplicationContext"
+class="com.palbrattberg.spring.StaticSpringApplicationContext" /&gt;</code>
+
+This will make sure Spring itself configures the <code>StaticSpringApplicationContext</code> on startup.
+
+Now you can simply get your configured beans (preferably in your constructor) like this:
+
+<code>MyBean myBean = (MyBean) StaticSpringApplicationContext.getBean("myBean");</code>
+
+Now you are free to use Spring for configuring all your future code.
+
+<a href="http://www.palbrattberg.org/wp-content/uploads/2008/03/staticspringapplicationcontext.java" title="Source code for StaticSpringApplicationContext">Source code for StaticSpringApplicationContext</a>

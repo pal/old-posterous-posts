@@ -1,0 +1,42 @@
+title: Mongolian focus in Swing
+date: 2005/04/11 15:07:49 -0700
+tags: [{"name":"Technology","id":67156055}]
+author: Pål Brattberg
+alias: /mongolian-focus-in-swing-96809
+
+On my current project, there is quite a bit of GUI-hacking with Java. We use a homebrewed framework, built on top of Swing for this. Recently we started doing a new type of multi-column layouts in our panels, and we wanted a new style of focus traversal for these layouts.
+
+When reading up on <a href="http://java.sun.com/docs/books/tutorial/uiswing/misc/focus.html">the docs on focus</a> (which are very good, as are all Swing docs), it was clear I had to whip up my own <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/awt/FocusTraversalPolicy.html">FocusTraversalPolicy</a>. It looked like I could just extend <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/swing/LayoutFocusTraversalPolicy.html">LayoutFocusTraversalPolicy</a> to hardwire Mongolian ordering (top to bottom, left to right. AKA <code>TL</code>). Unfortunately <code>LayoutFocusTraversalPolicy</code> uses <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/awt/ComponentOrientation.html">ComponentOrientation</a>, which mentions support for this orientation, but there's no <code>set</code>-methods to enforce that orientation. Guess it will come in a later release.
+
+Next disappointment, both the constructor and the class itself is <code>final</code> (why?!), preventing me from an easy fix. Lacking this easy fix, I implemented this fix myself which subclasses <code>LayoutFocusTraversalPolicy</code> and calls <code>setComparator()</code> with my own implementation of <code>Comparator</code> which does pretty much the same thing as <code>LayoutComparator</code>, but doesn't use a <code>ComponentOrientation</code> object.
+
+For help in implementing this, I let my own policy, <code>MongolianFocusTraversalPolicy</code>, extend <code>LayoutFocusTraversalPolicy</code>:
+<div class="CodeRay">
+  <div class="code"><pre>import javax.swing.LayoutFocusTraversalPolicy;
+
+/**
+ * An implementation of a Mongolian focus traversal. Register this class on
+ * your Frame to use this policy.
+ * 
+ * MongolianFocusTraversalPolicy policy = new MongolianFocusTraversalPolicy();
+ * frame.setFocusTraversalPolicy(policy);
+ * 
+ *
+ * @author Pål Brattberg
+ */
+public class MongolianFocusTraversalPolicy extends LayoutFocusTraversalPolicy {
+        /**
+         * Default contructor. Register a MongolianLayoutComparator
+         * to handle the comparisons for Component order.
+         */
+        public IGBAMongolianFocusTraversalPolicy() {
+                super();
+                setComparator(new MongolianLayoutComparator());
+        }
+}</pre></div>
+</div>
+
+
+I'm not at liberty to supply the code for the <code>MongolianLayoutComparator</code>, but have a look at <code>LayoutComparator</code>, and make away with <code>ComponentOrientation</code>, and it should be easy enough to implement this class. You could also give it the getters and setters <code>ComponentOrientation</code> misses.
+
+If you need help, don't hesistate to let me know!

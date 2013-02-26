@@ -1,0 +1,20 @@
+title: CSS min-height in Internet Explorer
+date: 2005/05/10 12:03:01 -0700
+tags: [{"name":"Pointers","id":67156060},{"name":"Technology","id":67156061}]
+author: Pål Brattberg
+alias: /css-min-height-in-internet-explorer-97821
+
+I use <a href="http://www.mozilla.org/products/firefox/">Firefox</a> as my default browser, but when developing internet applications we have to cater to a larger crowd, and have to support Internet Explorer as well. This creates some problems when using <a href="http://www.w3.org/Style/CSS/">CSS</a> in our designs. One area that creates trouble is using <code>min-height</code> which works fine in Firefox, but only on <code>TD</code>s in IE.
+
+I'm doing a design using the nice <a href="http://pro.html.it/articoli/id_599/idcat_31/pag_1/pag.html">Nifty Corners</a> technique, and wanted a header on my boxes, and for that I needed to set the <code>min-height</code> property.
+
+So, it doesn't work in IE, but instead <code>height</code> is broken, and works like <code>min-height</code> should in IE. So, I'd like to use <code>min-height</code> for all browsers except IE, where I'd like to use <code>height</code>.
+
+Solution is simple:
+<code>.myDivClass {
+	min-height: 30px;
+	height: auto !important;
+	height: 30px;
+}</code>
+
+Found this tip <a href="http://www.constile.org/tips/min-height/">here</a>, but I can't read Italian, so maybe it says it's broken, what do I know? But it works in my Firefox and IE, so I'm pleased! :)
